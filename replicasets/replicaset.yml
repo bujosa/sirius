@@ -9,7 +9,7 @@ spec: # You can configure the number of replicas
       app: nginx
     matchExpressions: # This part is a selections expression more advanced than match labels
       - {key: app, operator: In, values: [nginx]}
-  template:
+  template: 
     metadata: 
       name: nginx
       labels:
