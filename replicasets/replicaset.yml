@@ -1,20 +1,20 @@
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: ReplicaSet # Other example Pod, etc
 metadata: 
-  name: replicaset
-spec:
+  name: replicaset # You need to set the name
+spec: # You can configure the number of replicas
   replicas: 3
   selector:
-    matchLabels: 
+    matchLabels: # You can configured the labels of the pods, that will be affected by the replica set
       app: nginx
-    matchExpressions:
+    matchExpressions: # This part is a selections expression more advanced than match labels
       - {key: app, operator: In, values: [nginx]}
   template:
     metadata: 
       name: nginx
       labels:
         app: nginx
-    spec:
+    spec: # INFORMATION RELATED WITH POD
       containers: 
       - name: nginx
         image: nginx
