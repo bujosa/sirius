@@ -2,3 +2,54 @@
 # Endpoint
 # LoadBalancer
 # ClusterIP, NodePort 
+apiVersion: v1
+kind: Service
+metadata: 
+  name: service
+  annotations:
+    dev.okteto.com/auto-ingress: "true" # If you use this annotations okteto automatically generate one endpoint public
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: service
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: service
+  labels: 
+    app: service
+spec: 
+  replicas: 3
+  selector:
+    matchLabels: 
+      app: service
+  template:
+    metadata:
+      labels:
+        app: service
+    spec:
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      initContainers: # These run sequentially before running the containers that are defined in the container field
+      - name: content
+        image: alpine
+        volumeMounts:
+        - name: shared-data
+          mountPath: /pod-data
+        command: ["sh"]
+        args: ["-c", "echo Container: $HOSTNAME > /pod-data/index.html"]
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts: 
+        - name: shared-data
+          mountPath: /usr/share/nginx/html
