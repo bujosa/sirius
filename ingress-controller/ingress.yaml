@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
-  name: Ingress
+  name: ingress
 spec:
   rules: 
   - host: ingress1-bujosa.cloud.okteto.net
@@ -50,7 +50,8 @@ metadata:
 spec:
   replicas: 3
   selector:
-    app: world
+    matchLabels:
+      app: world
   template:
     metadata:
       labels:
@@ -101,7 +102,8 @@ metadata:
 spec:
   replicas: 3
   selector:
-    app: students
+    matchLabels:
+      app: students
   template:
     metadata:
       labels:
