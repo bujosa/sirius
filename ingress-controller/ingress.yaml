@@ -1,0 +1,131 @@
+apiVersion : extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: Ingress
+spec:
+  rules: 
+  - host: ingress1-bujosa.cloud.okteto.net
+    http:
+      paths:
+      - backend:
+          serviceName: world
+          servicePort: 80
+        path: /
+  - host: ingress2-bujosa.cloud.okteto.net
+    http:
+      paths:
+      - backend:
+          serviceName: students
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - ingress1-bujosa.cloud.okteto.net
+    - ingress2-bujosa.cloud.okteto.net
+  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: world
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: world
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: world
+  labels:
+    app: world
+spec:
+  replicas: 3
+  selector:
+    app: world
+  template:
+    metadata:
+      labels:
+        app: world
+    spec: 
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      initContainers:
+      - name: content
+        image: alpine
+        volumeMounts: 
+        - name: shared-data
+          mountPath: /pod-data
+        command: ["sh"]
+        args: ["-c", "echo hello world! > /pod-data/index.html"]
+      containers:
+      - name: nginx
+        image: nginx
+        ports: 
+        - containerPort: 80
+        volumeMounts:
+        - name: shared-data
+          mountPath: /usr/share/nginx/html
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: students
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: students
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: students
+  labels:
+    app: students
+spec:
+  replicas: 3
+  selector:
+    app: students
+  template:
+    metadata:
+      labels:
+        app: students
+    spec: 
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      initContainers:
+      - name: content
+        image: alpine
+        volumeMounts: 
+        - name: shared-data
+          mountPath: /pod-data
+        command: ["sh"]
+        args: ["-c", "echo hello students! > /pod-data/index.html"]
+      containers:
+      - name: nginx
+        image: nginx
+        ports: 
+        - containerPort: 80
+        volumeMounts:
+        - name: shared-data
+          mountPath: /usr/share/nginx/html
+
+
+
