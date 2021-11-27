@@ -1,0 +1,37 @@
+# Deployment file is Pods + ReplicaSet
+# + Containes two features: Rolling updates (no downtime) and Rollbacks
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: deployment
+  labels: 
+    app: deployment
+spec: 
+  replicas: 3
+  selector:
+    matchLabels: 
+      app: deployment
+  template:
+    metadata:
+      labels:
+        app: deployment
+    spec:
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      initContainers: # These run sequentially before running the containers that are defined in the container field
+      - name: content
+        image: alpine
+        volumeMounts:
+        - name: shared-data
+          mountPath: /pod-data
+        command: ["sh"]
+        args: ["-c", "echo Hi! > /pod-data/index.html"]
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts: 
+        - name: shared-data
+          mountPath: /usr/share/nginx/html
