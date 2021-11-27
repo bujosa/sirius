@@ -1,0 +1,4 @@
+# Services have:
+# Endpoint
+# LoadBalancer
+# ClusterIP, NodePort 
